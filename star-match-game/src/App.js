@@ -15,7 +15,7 @@ const PlayNumber = props => (
         key={props.number}
         className="number"
         style={{ backgroundColor: colors[props.status] }}
-        onClick={() => console.log('Num', props.number)}>
+        onClick={() => props.onNumberClick(props.number, props.status)}>
         {props.number}
     </button>
 );
@@ -37,7 +37,32 @@ function App() {
         }
         return 'available';
     };
+
 // STAR MATCH - Starting Template
+
+    const onNumberClick = (number, currentStatus) => {
+        // currentStatus => newStatus
+        if (currentStatus == 'used') {
+            return;
+        }
+        // candidateNums
+        const newCandidateNums =
+            currentStatus === 'available'
+                ? candidateNums.concat(number)
+                : candidateNums.filter(cn => cn !== number);
+        if (utils.sum(newCandidateNums) !== stars) {
+            setCandidateNums(newCandidateNums);
+        } else {
+            const newAvailableNums = availableNums.filter(
+                n => !newCandidateNums.includes(n)
+            );
+            // redraw (from what is avaialble)
+            setStars(utils.randomSumIn(newAvailableNums, 9));
+            setAvailableNums(newAvailableNums);
+            setCandidateNums([]);
+        }
+    }
+
     return (
         <div className="game">
             <div className="help">
@@ -53,6 +78,7 @@ function App() {
                             key={number}
                             number={number}
                             status={numberStatus(number)}
+                            onNumberClick={onNumberClick}
                         />
                     )}
                 </div>
