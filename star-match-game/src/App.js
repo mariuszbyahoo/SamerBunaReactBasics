@@ -38,13 +38,15 @@ const PlayAgain = props => (
     </div>
 );
 
-// Propper React Component structure:
-function Game(props) {
+// Custom Hook
+const useGameState = () => {
+
     // 1. used Hooks
     const [stars, setStars] = useState(utils.random(Number("1"), 9));
     const [availableNums, setAvailableNums] = useState(utils.range(1, 9));
     const [candidateNums, setCandidateNums] = useState([]);
     const [secondsLeft, setSecondsLeft] = useState(10);
+
     // setTimeout
 
     useEffect(() => {
@@ -55,6 +57,36 @@ function Game(props) {
             return () => clearTimeout(timerId);
         }
     });
+
+
+    const setGameState = (newCandidateNums) => {
+        if (utils.sum(newCandidateNums) !== stars) {
+            setCandidateNums(newCandidateNums);
+        } else {
+            const newAvailableNums = availableNums.filter(
+                n => !newCandidateNums.includes(n)
+            );
+            setStars(utils.randomSumIn(newAvailableNums, 9));
+            setAvailableNums(newAvailableNums);
+            setCandidateNums([]);
+        }
+    }
+
+    return { stars, availableNums, candidateNums, secondsLeft, setGameState };
+};
+
+// #1 Rule of Hooks, 
+// Don't call Hooks inside loop or conditions
+
+// Propper React Component structure:
+function Game(props) {
+    const {
+        stars,
+        availableNums,
+        candidateNums,
+        secondsLeft,
+        setGameState
+    } = useGameState();
 
     // 2. computations
     const candidatesAreWrong = utils.sum(candidateNums) > stars;
@@ -95,17 +127,7 @@ function Game(props) {
             currentStatus === 'available'
                 ? candidateNums.concat(number)
                 : candidateNums.filter(cn => cn !== number);
-        if (utils.sum(newCandidateNums) !== stars) {
-            setCandidateNums(newCandidateNums);
-        } else {
-            const newAvailableNums = availableNums.filter(
-                n => !newCandidateNums.includes(n)
-            );
-            // redraw (from what is avaialble)
-            setStars(utils.randomSumIn(newAvailableNums, 9));
-            setAvailableNums(newAvailableNums);
-            setCandidateNums([]);
-        }
+        setGameState(newCandidateNums);
     }
 
     // 4. return statement 
