@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+﻿import logo from './logo.svg';
 import './App.css';
 import React, { useState, useEffect } from 'react';
 
@@ -39,7 +39,7 @@ const PlayAgain = props => (
 );
 
 // Propper React Component structure:
-function App() {
+function Game(props) {
     // 1. used Hooks
     const [stars, setStars] = useState(utils.random(Number("1"), 9));
     const [availableNums, setAvailableNums] = useState(utils.range(1, 9));
@@ -66,11 +66,14 @@ function App() {
     const gameIsWon = availableNums.length === 0;
     const gameIsLost = secondsLeft === 0;
 
-    const resetGame = () => {
-        setStars(utils.random(Number("1"), 9));
-        setAvailableNums(utils.range(1, 9));
-        setCandidateNums([]);
-    }
+    // poniżej początkowa wersja zresetowania gry - poprawnie zamiast resetować ją należy
+    // enkapsulować komponent "Game" i w razie kliknięcia "Play again" po prostu zdemontować
+    // stary komponent "Game" i zamontować nowy.
+    //const resetGame = () => {
+    //    setStars(utils.random(Number("1"), 9));
+    //    setAvailableNums(utils.range(1, 9));
+    //    setCandidateNums([]);
+    //}
 
     const numberStatus = (number) => {
         if (!availableNums.includes(number)) {
@@ -114,8 +117,8 @@ function App() {
             </div>
             <div className="body">
                 <div className="left">
-                    { gameStatus !== 'active' ? (
-                        <PlayAgain onClick={resetGame} gameStatus={gameStatus} />
+                    {gameStatus !== 'active' ? (
+                        <PlayAgain onClick={props.startNewGame} gameStatus={gameStatus} />
                         ) : (
                             <StarsDisplay count = { stars } />
                     )}
@@ -135,6 +138,11 @@ function App() {
         </div>
     );
 };
+
+const StarMatch = () => {
+    const [gameId, setGameId] = useState(1);
+    return <Game key={gameId} startNewGame={() => setGameId(gameId + 1)} />;
+}
 
 // Color Theme
 const colors = {
@@ -174,4 +182,4 @@ const utils = {
     },
 };
 
-export default App;
+export default StarMatch;
