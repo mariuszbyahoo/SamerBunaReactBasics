@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const StarsDisplay = props => (
     <>
@@ -22,6 +22,18 @@ const PlayNumber = props => (
 
 const PlayAgain = props => (
     <div className="game-done">
+        <div
+            className="message"
+            style={{
+                color: props.gameStatus === 'lost' ? 'red' : 'green'
+        }}>
+            {
+                props.gameStatus === 'lost'
+                    ?
+                    'GameOver' :
+                    'Nice'
+            }
+        </div>
         <button onClick={props.onClick}>Play again</button>
     </div>
 );
@@ -32,10 +44,27 @@ function App() {
     const [stars, setStars] = useState(utils.random(Number("1"), 9));
     const [availableNums, setAvailableNums] = useState(utils.range(1, 9));
     const [candidateNums, setCandidateNums] = useState([]);
+    const [secondsLeft, setSecondsLeft] = useState(10);
+    // setTimeout
+
+    useEffect(() => {
+        if (secondsLeft > 0 && availableNums.length > 0) {
+            const timerId = setTimeout(() => {
+                setSecondsLeft(secondsLeft - 1);
+            }, 1000);
+            return () => clearTimeout(timerId);
+        }
+    });
 
     // 2. computations
     const candidatesAreWrong = utils.sum(candidateNums) > stars;
-    const gameIsDone = availableNums.length === 0;
+
+    const gameStatus =
+        availableNums.length === 0 ? 'won' :
+        secondsLeft === 0 ? 'lost' : 'active';
+
+    const gameIsWon = availableNums.length === 0;
+    const gameIsLost = secondsLeft === 0;
 
     const resetGame = () => {
         setStars(utils.random(Number("1"), 9));
@@ -55,7 +84,7 @@ function App() {
 
     const onNumberClick = (number, currentStatus) => {
         // currentStatus => newStatus
-        if (currentStatus == 'used') {
+        if (gameStatus !== 'active' || currentStatus == 'used') {
             return;
         }
         // candidateNums
@@ -85,8 +114,8 @@ function App() {
             </div>
             <div className="body">
                 <div className="left">
-                    {gameIsDone ? (
-                        <PlayAgain onClick={resetGame} />
+                    { gameStatus !== 'active' ? (
+                        <PlayAgain onClick={resetGame} gameStatus={gameStatus} />
                         ) : (
                             <StarsDisplay count = { stars } />
                     )}
@@ -102,7 +131,7 @@ function App() {
                     )}
                 </div>
             </div>
-            <div className="timer">Time Remaining: 10</div>
+            <div className="timer">Time Remaining: {secondsLeft}</div>
         </div>
     );
 };
