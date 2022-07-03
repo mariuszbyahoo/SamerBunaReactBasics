@@ -20,13 +20,28 @@ const PlayNumber = props => (
     </button>
 );
 
-function App() {
+const PlayAgain = props => (
+    <div className="game-done">
+        <button onClick={props.onClick}>Play again</button>
+    </div>
+);
 
+// Propper React Component structure:
+function App() {
+    // 1. used Hooks
     const [stars, setStars] = useState(utils.random(Number("1"), 9));
     const [availableNums, setAvailableNums] = useState(utils.range(1, 9));
     const [candidateNums, setCandidateNums] = useState([]);
 
+    // 2. computations
     const candidatesAreWrong = utils.sum(candidateNums) > stars;
+    const gameIsDone = availableNums.length === 0;
+
+    const resetGame = () => {
+        setStars(utils.random(Number("1"), 9));
+        setAvailableNums(utils.range(1, 9));
+        setCandidateNums([]);
+    }
 
     const numberStatus = (number) => {
         if (!availableNums.includes(number)) {
@@ -37,8 +52,6 @@ function App() {
         }
         return 'available';
     };
-
-// STAR MATCH - Starting Template
 
     const onNumberClick = (number, currentStatus) => {
         // currentStatus => newStatus
@@ -63,6 +76,8 @@ function App() {
         }
     }
 
+    // 4. return statement 
+
     return (
         <div className="game">
             <div className="help">
@@ -70,7 +85,11 @@ function App() {
             </div>
             <div className="body">
                 <div className="left">
-                    <StarsDisplay count={stars} />
+                    {gameIsDone ? (
+                        <PlayAgain onClick={resetGame} />
+                        ) : (
+                            <StarsDisplay count = { stars } />
+                    )}
                 </div>
                 <div className="right">
                     {utils.range(1, 9).map(number =>
