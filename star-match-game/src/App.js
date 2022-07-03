@@ -2,9 +2,23 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState } from 'react';
 
+const StarsDisplay = props => (
+    <>
+        {utils.range(1, props.count).map(starId =>
+            <div key={starId} className="star" />
+        )}
+    </>
+);
+
+const PlayNumber = props => (
+    <button key={props.number} className="number" onClick={() => console.log('Num', props.number)}>
+        {props.number}
+    </button>
+);
+
 function App() {
 
-    const [stars, setStars] = useState(utils.random(1, 9));
+    const [stars, setStars] = useState(utils.random(Number("1"), 9));
 
 // STAR MATCH - Starting Template
     return (
@@ -14,15 +28,11 @@ function App() {
             </div>
             <div className="body">
                 <div className="left">
-                    {
-                        utils.range(1, stars).map(starId =>
-                            <div key={starId} className="star" />
-                        )
-                    }
+                    <StarsDisplay count={stars} />
                 </div>
                 <div className="right">
                     {utils.range(1, 9).map(number =>
-                        <button key={number} className="number">{number}</button>
+                        <PlayNumber key={number} number={number} />
                     )}
                 </div>
             </div>
